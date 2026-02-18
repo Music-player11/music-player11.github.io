@@ -61,10 +61,27 @@ html, body {
   width: 100vw;
   scroll-snap-align: start;
 }
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: #006aff; /* gray-800 */
+  cursor: pointer;
+}
+
+input[type=range]::-moz-range-thumb {
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: #1f2937;
+  cursor: pointer;
+}
 </style>
 
 </head>
-<body class="font-kalameh bg-gray-500">
+<body class="font-kalameh bg-gray-800">
 
 <div id="feed" class="feed"></div>
 
@@ -73,6 +90,9 @@ html, body {
 // ========================
 // SONG DATA
 // ========================
+
+let activeAudio = null;
+let userInteracted = false;
 
 let defaultSongs = [
 {
@@ -176,270 +196,354 @@ let defaultSongs = [
 }
 ];
 
-
-// =======================
-// LOAD / SAVE
-// =======================
-
-let songs = [];
-
-function loadData(){
-  let data = localStorage.getItem("musicFeedData");
-  songs = data ? JSON.parse(data) : defaultSongs;
-}
+let songs = JSON.parse(localStorage.getItem("songs")) || defaultSongs;
 
 function saveData(){
-  localStorage.setItem("musicFeedData", JSON.stringify(songs));
+localStorage.setItem("songs",JSON.stringify(songs));
 }
 
-// =======================
-// ALGORITHM
-// =======================
+/* ===========================
+   BUILD UI
+=========================== */
 
-function calculateInteraction(song){
-  let L = song.liked ? 1 : 0;
-  let R = Math.min(song.listenTime / song.duration, 1);
-  let Replay = Math.max(0, song.playCount - 1);
-  let CompletionBonus = R > 0.9 ? 2 : 0;
-
-  return (6 * L + 8 * R + 4 * Replay + 2 * CompletionBonus);
-}
-
-function updateInterest(song){
-  let interactionScore = calculateInteraction(song);
-  song.interestScore =
-  (song.interestScore * 0.8) +
-  (interactionScore * 0.2);
-  saveData();
-}
-
-function sortFeed(){
-  songs.sort((a,b)=> b.interestScore - a.interestScore);
-}
-
-// =======================
-// SVG ICONS
-// =======================
-
-function playIcon(){
-return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
-<path d="M8 5v14l11-7z"/></svg>`;
-}
-
-function pauseIcon(){
-return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
-<path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>`;
-}
-
-function heartOutline(){
-return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-</svg>
-`;
-}
-
-function heartFilled(){
-return `<svg viewBox="0 0 24 24" fill="currentColor"
-class="w-7 h-7 text-red-500">
-<path d="M12 21s-7-4.4-9.5-9C1 8.5 3.5 5 7 5c2 0 3.2 1 5 3
-1.8-2 3-3 5-3 3.5 0 6 3.5 4.5 7-2.5 4.6-9.5 9-9.5 9z"/>
-</svg>`;
-}
-
-// =======================
-// BUILD UI
-// =======================
-
-let feed = document.getElementById("feed");
+const feed = document.getElementById("feed");
 
 function buildFeed(){
 
-feed.innerHTML = "";
+feed.innerHTML="";
 
 songs.forEach(song=>{
 
-let div = document.createElement("div");
-div.className =
-"song flex flex-col justify-end p-6 text-white relative";
+let section = document.createElement("section");
+section.className="h-screen flex flex-col justify-center px-6 text-white snap-start";
+section.dataset.id=song.id;
 
-div.innerHTML = `
-<div class="absolute inset-0 bg-gradient-to-b from-black/20 to-black/90"></div>
+section.innerHTML=`
 
-<div class="relative z-10">
-
-<div class="flex items-center gap-3">
-<img src="${song.cover}"
-class="w-14 h-14 rounded-full object-cover border border-white/30" />
+<div class="flex items-center gap-4 mb-6">
+<img src="${song.cover}" class="w-16 h-16 rounded-full object-cover">
 <div>
-<h1 class="text-xl font-bold">${song.title}</h1>
-<p class="text-gray-300 text-sm">${song.artist}</p>
+<h2 class="text-xl font-bold">${song.title}</h2>
+<p class="text-sm text-gray-400">${song.artist}</p>
 </div>
 </div>
 
-<p class="mt-4 text-lg">${song.message}</p>
+<p class="mb-8 text-gray-300" dir="rtl">${song.message}</p>
 
-<div class="flex items-center gap-4 mt-6">
+<div class="flex items-center gap-4">
 
-<button onclick="togglePlay(${song.id})"
-id="playBtn-${song.id}">
-${playIcon()}
+<button onclick="togglePlay(${song.id})" id="playBtn-${song.id}">
+${pauseIcon()}
 </button>
 
-<div class="w-40 h-1 bg-white/30 rounded overflow-hidden">
-<div id="progress-${song.id}"
-class="h-full bg-white w-0 transition-all"></div>
-</div>
-
-<button onclick="toggleLike(${song.id})">
-${song.liked ? heartFilled() : heartOutline()}
+<button onclick="toggleLike(${song.id})" id="likeBtn-${song.id}">
+${song.liked?heartFilled():heartOutline()}
 </button>
 
 </div>
 
+<div class="mt-6 w-full">
+<input type="range" min="0" value="0" step="0.1"
+id="seek-${song.id}"
+class="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer">
+<div class="flex justify-between text-xs mt-1 text-white/70">
+<span id="current-${song.id}">0:00</span>
+<span id="duration-${song.id}">0:00</span>
+</div>
 </div>
 
 <audio id="audio-${song.id}" src="${song.src}"></audio>
 `;
 
-feed.appendChild(div);
+feed.appendChild(section);
 
-let audio = div.querySelector("audio");
-
-audio.addEventListener("loadedmetadata", ()=>{
-  song.duration = audio.duration;
-  saveData();
-});
-
-let progress = div.querySelector("#progress-" + song.id);
-
-audio.addEventListener("timeupdate", ()=>{
-  if(audio.duration){
-    let percent = (audio.currentTime / audio.duration) * 100;
-    progress.style.width = percent + "%";
-  }
-});
+setupAudio(section,song);
 
 });
 
-observeSongs();
+observeSections();
 }
 
-// =======================
-// LIKE
-// =======================
-
-function toggleLike(id){
-let song = songs.find(s=>s.id==id);
-song.liked = !song.liked;
-updateInterest(song);
 buildFeed();
+
+document.addEventListener("touchstart", firstInteraction, { once: true });
+document.addEventListener("click", firstInteraction, { once: true });
+
+function firstInteraction(){
+
+userInteracted = true;
+
+// سکشن اول
+let firstSection = document.querySelector("section");
+let firstId = firstSection.dataset.id;
+
+let audio = document.getElementById("audio-"+firstId);
+let btn = document.getElementById("playBtn-"+firstId);
+
+audio.play().then(()=>{
+activeAudio = audio;
+btn.innerHTML = pauseIcon();
+});
 }
 
-// =======================
-// MEDIA SESSION
-// =======================
+document.addEventListener("touchstart", unlockAudio, { once:true });
+document.addEventListener("click", unlockAudio, { once:true });
 
-function setMediaSession(song, audio){
+function unlockAudio(){
+userInteracted = true;
+}
 
-if ('mediaSession' in navigator){
+/* ===========================
+   AUDIO SETUP
+=========================== */
 
-navigator.mediaSession.metadata =
-new MediaMetadata({
-  title: song.title,
-  artist: song.artist,
-  album: "Music Feed",
-  artwork: [
-    { src: song.cover, sizes: "512x512", type: "image/png" }
-  ]
+function setupAudio(section,song){
+
+let audio = section.querySelector("audio");
+let seek = section.querySelector("#seek-"+song.id);
+let currentEl = section.querySelector("#current-"+song.id);
+let durationEl = section.querySelector("#duration-"+song.id);
+
+audio.addEventListener("loadedmetadata",()=>{
+seek.max = audio.duration;
+durationEl.textContent=formatTime(audio.duration);
+song.duration=audio.duration;
+saveData();
 });
 
-navigator.mediaSession.setActionHandler('play', ()=> audio.play());
-navigator.mediaSession.setActionHandler('pause', ()=> audio.pause());
+audio.addEventListener("timeupdate",()=>{
+seek.value=audio.currentTime;
+currentEl.textContent=formatTime(audio.currentTime);
+song.listenTime+=0.5;
+});
+
+seek.addEventListener("input",()=>{
+audio.currentTime=seek.value;
+});
+
+audio.addEventListener("ended",()=>{
+goToNextSmart(song.id);
+});
 
 }
 
-}
-
-// =======================
-// PLAY + PROGRESS
-// =======================
+/* ===========================
+   PLAY CONTROL
+=========================== */
 
 function togglePlay(id){
 
 let audio = document.getElementById("audio-"+id);
 let btn = document.getElementById("playBtn-"+id);
-let progress = document.getElementById("progress-"+id);
 let song = songs.find(s=>s.id==id);
+
+if(activeAudio && activeAudio !== audio){
+activeAudio.pause();
+resetAllIcons();
+}
 
 if(audio.paused){
 
 audio.play();
+setMediaSession(song,audio);
+activeAudio = audio;
 btn.innerHTML = pauseIcon();
 song.playCount++;
 
-setMediaSession(song,audio);
+}else{
 
-
-
-}
-else{
 audio.pause();
+activeAudio = null;
 btn.innerHTML = playIcon();
-}
 
 }
 
-// =======================
-// AUTO PLAY ON SCROLL
-// =======================
+updateInterest(song);
+saveData();
+}
 
-let observer = new IntersectionObserver(entries=>{
+/* ===========================
+   rest icons
+=========================== */
+
+function resetAllIcons(){
+document.querySelectorAll("[id^='playBtn-']").forEach(btn=>{
+btn.innerHTML = playIcon();
+});
+}
+
+/* ===========================
+   LIKE
+=========================== */
+
+function toggleLike(id){
+
+let song=songs.find(s=>s.id==id);
+song.liked=!song.liked;
+
+let btn=document.getElementById("likeBtn-"+id);
+btn.innerHTML=song.liked?heartFilled():heartOutline();
+
+updateInterest(song);
+saveData();
+}
+
+/* ===========================
+   SMART ALGORITHM
+=========================== */
+
+function updateInterest(song){
+
+let artistScore =
+songs
+.filter(s=>s.artist===song.artist)
+.reduce((acc,s)=>acc+(s.liked?1:0),0);
+
+song.interestScore =
+(song.liked?3:0)+
+(song.listenTime/(song.duration||1))*2+
+(song.playCount*0.5)+
+(artistScore*2);
+}
+
+function goToNextSmart(currentId){
+
+let candidates = songs.filter(s=>s.id !== currentId);
+
+if(candidates.length === 0) return;
+
+let total = candidates.reduce((acc,s)=>acc + (s.interestScore || 1),0);
+
+let rand = Math.random() * total;
+let cumulative = 0;
+let selected = candidates[0];
+
+for(let s of candidates){
+cumulative += (s.interestScore || 1);
+if(rand <= cumulative){
+selected = s;
+break;
+}
+}
+
+scrollToSong(selected.id);
+}
+
+/* ===========================
+   SCROLL OBSERVER
+=========================== */
+
+function observeSections(){
+
+let observer = new IntersectionObserver((entries)=>{
+
 entries.forEach(entry=>{
 
-let audio = entry.target.querySelector("audio");
-let id = parseInt(audio.id.split("-")[1]);
-let song = songs.find(s=>s.id==id);
+let id = entry.target.dataset.id;
+let audio = document.getElementById("audio-"+id);
+let btn = document.getElementById("playBtn-"+id);
 
 if(entry.isIntersecting){
 
-audio.play();
-song.playCount++;
-setMediaSession(song, audio);
+if(!userInteracted) return;
 
-song._interval = setInterval(()=>{
-song.listenTime++;
-},1000);
-
+if(activeAudio && activeAudio !== audio){
+activeAudio.pause();
 }
-else{
+
+resetAllIcons();
+
+audio.play().then(()=>{
+activeAudio = audio;
+btn.innerHTML = pauseIcon();
+});
+
+}else{
 
 audio.pause();
-clearInterval(song._interval);
-updateInterest(song);
 
+if(activeAudio === audio){
+activeAudio = null;
+}
+
+btn.innerHTML = playIcon();
 }
 
 });
-},{ threshold: 0.7 });
 
-function observeSongs(){
-document.querySelectorAll(".song")
-.forEach(el=> observer.observe(el));
+},{threshold:0.65});
+
+document.querySelectorAll("section").forEach(sec=>{
+observer.observe(sec);
+});
+
 }
 
-// =======================
-// INIT
-// =======================
+/* ===========================
+   ICONS
+=========================== */
 
-function init(){
-loadData();
-sortFeed();
-buildFeed();
+function playIcon(){
+return `<svg width="30" height="30" fill="white" viewBox="0 0 24 24">
+<polygon points="5,3 19,12 5,21"></polygon>
+</svg>`;
 }
 
-init();
+function pauseIcon(){
+return `<svg width="30" height="30" fill="white" viewBox="0 0 24 24">
+<rect x="5" y="3" width="5" height="18"></rect>
+<rect x="14" y="3" width="5" height="18"></rect>
+</svg>`;
+}
 
+function heartOutline(){
+return `<svg width="32" height="32" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+<path d="M12 21s-8-5.5-8-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 4.5-8 10-8 10z"/>
+</svg>`;
+}
+
+function heartFilled(){
+return `<svg width="32" height="32" fill="red" viewBox="0 0 24 24">
+<path d="M12 21s-8-5.5-8-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 4.5-8 10-8 10z"/>
+</svg>`;
+}
+
+function formatTime(sec){
+let m=Math.floor(sec/60);
+let s=Math.floor(sec%60);
+if(s<10)s="0"+s;
+return m+":"+s;
+}
+
+function setMediaSession(song,audio){
+
+if("mediaSession" in navigator){
+
+navigator.mediaSession.metadata = new MediaMetadata({
+title: song.title,
+artist: song.artist,
+artwork: [
+{ src: song.cover, sizes: "512x512", type: "image/png" }
+]
+});
+
+navigator.mediaSession.setActionHandler("play", ()=>{
+audio.play();
+});
+
+navigator.mediaSession.setActionHandler("pause", ()=>{
+audio.pause();
+});
+
+navigator.mediaSession.setActionHandler("previoustrack", ()=>{
+});
+
+navigator.mediaSession.setActionHandler("nexttrack", ()=>{
+goToNextSmart(song.id);
+});
+
+}
+}
 </script>
-
 </body>
 </html>
