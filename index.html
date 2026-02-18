@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Music Feed</title>
-
+<link rel="stylesheet" href="style.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
     tailwind.config = {
@@ -48,36 +48,7 @@ html, body {
   overflow: hidden;
   background: black;
 }
-@font-face {
-  font-family: 'bahman';
-  src: 
-       url('fonts/bahman.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
 
-@font-face {
-  font-family: 'hasti';
-  src: url('fonts/HastiFaNum-Heavy.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'kalameh';
-  src: 
-       url('fonts/Kalameh-Black[@mimvid].ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'peyda';
-  src:
-       url('fonts/Peyda-Bold[@mimvid].ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
 .feed {
   height: 100vh;
   width: 100vw;
@@ -103,7 +74,7 @@ html, body {
 // SONG DATA
 // ========================
 
-let songs = [
+let defaultSongs = [
 {
   id: 1,
   title: "hayahoo",
@@ -111,7 +82,6 @@ let songs = [
   cover: "https://ememay.ir/music/wp-content/uploads/2025/02/trackname1-371.jpeg",
   src: "https://ts18.tarafdari.com/contents/user793663/content-sound/hayahoo.mp3",
   message: "انقدر از تو میگم تا که همه خسته بشن، به همه دنیا بگو دور تورو خط بکشن",
-  duration: 348,
   liked: false,
   listenTime: 0,
   playCount: 0
@@ -123,7 +93,6 @@ let songs = [
   cover: "https://ahaang.com/wp-content/uploads/2020/06/Wantons-Hanoozam-300x300.jpg",
   src: "https://dl.ahaang.com/99/03/12/Wantons%20-%20Hanoozam.mp3",
   message: "میکنن غوغا به پا اون دوتا چشا",
-  duration: 299,
   liked: false,
   listenTime: 0,
   playCount: 0
@@ -135,7 +104,6 @@ let songs = [
   cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbI7aVu8PwTUKxaVxPeGONRoMRntaVbigZNg&s",
   src: "https://ts7.tarafdari.com/contents/user90987/content-sound/khalse_ft_hoomaan_-_berim_baham.mp3",
   message: "مود من باتو اوکیه هرجا باشم",
-  duration: 321,
   liked: false,
   listenTime: 0,
   playCount: 0
@@ -147,7 +115,6 @@ let songs = [
   cover: "data:image/jpeg;base64,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",
   src: "https://ts17.tarafdari.com/contents/user810598/content-sound/01_-_love_you_to_death.mp3",
   message: "حسم بهت ماوراییه جا نمیشه توی این اعداد توی این ارقام",
-  duration: 321,
   liked: false,
   listenTime: 0,
   playCount: 0
@@ -159,7 +126,6 @@ let songs = [
   cover: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIADgAOAMBEQACEQEDEQH/xAAaAAACAwEBAAAAAAAAAAAAAAAEBQIDBgEH/8QANRAAAgEDAgMGAwUJAAAAAAAAAQIDAAQREjEFIUETIlFxgaEGYZEjQuHw8RQVMjNSU2Kxwf/EABoBAAIDAQEAAAAAAAAAAAAAAAAEAwUGAgH/xAAtEQACAQIEAwYHAQAAAAAAAAABAgADEQQSMVETIUEiYYGRobEFI3HB0eHwFP/aAAwDAQACEQMRAD8A8lxRCa/hXYcD4MLyQYuptyR3gOiL4ZHMmiEq4HN++uOtNcomiKMvoxyJ2GfkM0QjyOeM3UtrbIuVHfYRgsx8+n4VyWA5SQUny5rcpk/imSaa+kR00gZbb8+VdSOJbWIvMmRy3GetR1GAUx7BUSaqsw5dO+32EtupJChgVhp3fTsfDzqKmgvmMdxtV3vSXx/E7bPFG4eRS+Nl2HrTMpIx4xO8kdurNkYLep/QUQg/B72Th92Z4gGGgqwJwMfriuWbKJPh6PGfKTYdTNNwPiEcfG4LaKQyRzjXJJ/cYjP4elLKl6lz097Syrgf5r25keQvp+YR8R2lvMLl5M6OzZ0ZTjPUe+KZZrLcSso0s9ZaZ3mRciNCQAO7p26UkLk2mpqZKa3A0FvCU6dQeWTwz51JmsQoi3DBRqj6Wkba2eQByMRjdiabmZk7uZZ5hoB0IoVc9fnRCD6SxAG5NeGwFzO0DMwVdTGyIYGguFUkwOpHPGTvjPpVfxCbqDa82NbCoVUbC003xHIn7ignB+0uFQBR12JpkgLRCjumfwyk41jsTMrcq4tuzRMopBmkHMZ6DNLoLktLWs9rITzMDuA7xhV5LjfxqamApzGQYvPVThppB+2kZQrOSo2GaamdnVNEJOFwsyN864qC6ERnBsFxCE7iae/g13EHDoSsaQJ9q52DHBdj5bemKqsKpqdvf26TU4jEChTNVvCDcUvjc6bdP5Ns2EHyHKrGsOyJRfDHzV2zakRjbRxXHwzMioS6RNz6EnB+u31qOpVWlTHeQJ7w3q41r9PbpM28HY2kTyTd+QkiPGy7Z9cVxxMzFQOQlgiZRdjrKrS0iuYQRKFfwNPTMxpa/C11eRF4poVxvqeiEnbcF/ZJwlxGlywOyjVn6H/tBhpB+LpJLeu/fXtZn0nbOGyR/qkMN8sAeE0nxFeLRUDUC8K4Zw9HguO0YZ7JiOe5A5U64uplFhXKVlI3kIblV4dPBLrEbtnSv3m6A/Ln7VVuC1QMOnpNMUWmwHU+tovk0yqZIw0hTnLL90E8gB+fYVMAV5HykS1Q7coo7GaNQ2kkEZyKsJl5dbXs1ucoSG8ckUQjm3+IjkNcoGdRydV5/UEUQlU97HKRH2hDF9ad3+odfDpSuTsH6y6OJBrqDoVA9IZa8cJ4lZxWyCESTxpK74PdLAMMnpjNSVyeA5Gx9pV0xasAd/vFt+ezikR3ZZi5GkbcjzpalzII0l/jCQgAPM/xkpke2tLSB+RZDKUznGo7+enT9K8DB2Zh9PL93nNFciAHU38onR5EPcYr5VYTOTrSyP8AxnPnRCRDUQktfMHPMbV5adFzmDDpb0nZmDlv8hQvITqsczlt4y4hL+2SxXRxiVcnHRsDPuDSVNeGCm0vQRVSm/dOcUuGncTHGZEXGn3980UUCjLtPaz2W41M/9k=",
   src: "https://dl.musicsmelon.com/Music/Hoomaan%20-%20Fxxkin%20Distance%20(320).mp3",
   message: "ولی اینو بدون که هنوزم میبینمت، حس میکنمت پیش من",
-  duration: 321,
   liked: false,
   listenTime: 0,
   playCount: 0
@@ -171,7 +137,6 @@ let songs = [
   cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTks9kjwACIFMkE8D-02PA8O383XDvK7mwJ8g&s",
   src: "https://ts18.tarafdari.com/contents/user895206/content-sound/isam-nameh.mp3",
   message: "خستم از حرفای پوچ، کاش واست هوا بشم",
-  duration: 321,
   liked: false,
   listenTime: 0,
   playCount: 0
@@ -183,7 +148,6 @@ let songs = [
   cover: "data:image/jpeg;base64,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",
   src: "https://ts17.tarafdari.com/contents/user803259/content-sound/wantons_-_haminim_ke_hastim.mp3",
   message: "این دیوونه سرتو شهرو به اتیش میکشه",
-  duration: 321,
   liked: false,
   listenTime: 0,
   playCount: 0
@@ -195,7 +159,6 @@ let songs = [
   cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSS_YTD9s9gbcVS39FQXkVI2etLXwCkdTgYtg&s",
   src: "https://dl.ehsasmusic.com/ahang/01/11/Hoomaan%20-%20To%20Mano%20Dari%20-%20128%20-%20ehsasmusic.com.mp3",
   message: "تو منو داری",
-  duration: 321,
   liked: false,
   listenTime: 0,
   playCount: 0
@@ -207,7 +170,6 @@ let songs = [
   cover: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIADgAOAMBEQACEQEDEQH/xAAaAAACAwEBAAAAAAAAAAAAAAAEBQIDBgEH/8QANRAAAgEDAgMGAwUJAAAAAAAAAQIDAAQREjEFIUETIlFxgaEGYZEjQuHw8RQVMjNSU2Kxwf/EABoBAAIDAQEAAAAAAAAAAAAAAAAEAwUGAgH/xAAtEQACAQIEAwYHAQAAAAAAAAABAgADEQQSMVETIUEiYYGRobEFI3HB0eHwFP/aAAwDAQACEQMRAD8A8lxRCa/hXYcD4MLyQYuptyR3gOiL4ZHMmiEq4HN++uOtNcomiKMvoxyJ2GfkM0QjyOeM3UtrbIuVHfYRgsx8+n4VyWA5SQUny5rcpk/imSaa+kR00gZbb8+VdSOJbWIvMmRy3GetR1GAUx7BUSaqsw5dO+32EtupJChgVhp3fTsfDzqKmgvmMdxtV3vSXx/E7bPFG4eRS+Nl2HrTMpIx4xO8kdurNkYLep/QUQg/B72Th92Z4gGGgqwJwMfriuWbKJPh6PGfKTYdTNNwPiEcfG4LaKQyRzjXJJ/cYjP4elLKl6lz097Syrgf5r25keQvp+YR8R2lvMLl5M6OzZ0ZTjPUe+KZZrLcSso0s9ZaZ3mRciNCQAO7p26UkLk2mpqZKa3A0FvCU6dQeWTwz51JmsQoi3DBRqj6Wkba2eQByMRjdiabmZk7uZZ5hoB0IoVc9fnRCD6SxAG5NeGwFzO0DMwVdTGyIYGguFUkwOpHPGTvjPpVfxCbqDa82NbCoVUbC003xHIn7ignB+0uFQBR12JpkgLRCjumfwyk41jsTMrcq4tuzRMopBmkHMZ6DNLoLktLWs9rITzMDuA7xhV5LjfxqamApzGQYvPVThppB+2kZQrOSo2GaamdnVNEJOFwsyN864qC6ERnBsFxCE7iae/g13EHDoSsaQJ9q52DHBdj5bemKqsKpqdvf26TU4jEChTNVvCDcUvjc6bdP5Ns2EHyHKrGsOyJRfDHzV2zakRjbRxXHwzMioS6RNz6EnB+u31qOpVWlTHeQJ7w3q41r9PbpM28HY2kTyTd+QkiPGy7Z9cVxxMzFQOQlgiZRdjrKrS0iuYQRKFfwNPTMxpa/C11eRF4poVxvqeiEnbcF/ZJwlxGlywOyjVn6H/tBhpB+LpJLeu/fXtZn0nbOGyR/qkMN8sAeE0nxFeLRUDUC8K4Zw9HguO0YZ7JiOe5A5U64uplFhXKVlI3kIblV4dPBLrEbtnSv3m6A/Ln7VVuC1QMOnpNMUWmwHU+tovk0yqZIw0hTnLL90E8gB+fYVMAV5HykS1Q7coo7GaNQ2kkEZyKsJl5dbXs1ucoSG8ckUQjm3+IjkNcoGdRydV5/UEUQlU97HKRH2hDF9ad3+odfDpSuTsH6y6OJBrqDoVA9IZa8cJ4lZxWyCESTxpK74PdLAMMnpjNSVyeA5Gx9pV0xasAd/vFt+ezikR3ZZi5GkbcjzpalzII0l/jCQgAPM/xkpke2tLSB+RZDKUznGo7+enT9K8DB2Zh9PL93nNFciAHU38onR5EPcYr5VYTOTrSyP8AxnPnRCRDUQktfMHPMbV5adFzmDDpb0nZmDlv8hQvITqsczlt4y4hL+2SxXRxiVcnHRsDPuDSVNeGCm0vQRVSm/dOcUuGncTHGZEXGn3980UUCjLtPaz2W41M/9k=",
   src: "https://dl.kelmusic.ir/Rap/Hoomaan%20ft%20Ashkan%20Kagan%20-%20Ghosse%20Nakhor%20Girl.mp3",
   message: "من برات سختی میکشم،تو برف و رعد و برق",
-  duration: 321,
   liked: false,
   listenTime: 0,
   playCount: 0
@@ -215,50 +177,78 @@ let songs = [
 ];
 
 
-// ========================
-// ALGORITHM
-// ========================
+// =======================
+// LOAD / SAVE
+// =======================
 
-function calculateScore(song){
+let songs = [];
 
-let L = song.liked ? 1 : 0;
-
-let R = song.listenTime / song.duration;
-if(R > 1) R = 1;
-
-let Replay = Math.max(0, song.playCount - 1);
-
-let CompletionBonus = R > 0.9 ? 2 : 0;
-
-let Score =
-6 * L +
-8 * R +
-4 * Replay +
-2 * CompletionBonus;
-
-return Score;
-
+function loadData(){
+  let data = localStorage.getItem("musicFeedData");
+  songs = data ? JSON.parse(data) : defaultSongs;
 }
 
+function saveData(){
+  localStorage.setItem("musicFeedData", JSON.stringify(songs));
+}
 
-// ========================
-// SORT FEED
-// ========================
+// =======================
+// ALGORITHM
+// =======================
+
+function calculateInteraction(song){
+  let L = song.liked ? 1 : 0;
+  let R = Math.min(song.listenTime / song.duration, 1);
+  let Replay = Math.max(0, song.playCount - 1);
+  let CompletionBonus = R > 0.9 ? 2 : 0;
+
+  return (6 * L + 8 * R + 4 * Replay + 2 * CompletionBonus);
+}
+
+function updateInterest(song){
+  let interactionScore = calculateInteraction(song);
+  song.interestScore =
+  (song.interestScore * 0.8) +
+  (interactionScore * 0.2);
+  saveData();
+}
 
 function sortFeed(){
-
-songs.sort((a,b)=>{
-
-return calculateScore(b) - calculateScore(a);
-
-});
-
+  songs.sort((a,b)=> b.interestScore - a.interestScore);
 }
 
+// =======================
+// SVG ICONS
+// =======================
 
-// ========================
+function playIcon(){
+return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
+<path d="M8 5v14l11-7z"/></svg>`;
+}
+
+function pauseIcon(){
+return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
+<path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>`;
+}
+
+function heartOutline(){
+return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+</svg>
+`;
+}
+
+function heartFilled(){
+return `<svg viewBox="0 0 24 24" fill="currentColor"
+class="w-7 h-7 text-red-500">
+<path d="M12 21s-7-4.4-9.5-9C1 8.5 3.5 5 7 5c2 0 3.2 1 5 3
+1.8-2 3-3 5-3 3.5 0 6 3.5 4.5 7-2.5 4.6-9.5 9-9.5 9z"/>
+</svg>`;
+}
+
+// =======================
 // BUILD UI
-// ========================
+// =======================
 
 let feed = document.getElementById("feed");
 
@@ -269,41 +259,39 @@ feed.innerHTML = "";
 songs.forEach(song=>{
 
 let div = document.createElement("div");
-
 div.className =
 "song flex flex-col justify-end p-6 text-white relative";
 
 div.innerHTML = `
-
-<div class="absolute inset-0 bg-gradient-to-b from-black/30 to-black/90"></div>
+<div class="absolute inset-0 bg-gradient-to-b from-black/20 to-black/90"></div>
 
 <div class="relative z-10">
 
-    <img
-src="${song.cover}"
-class="w-20 h-20 rounded-full object-cover border border-white/30 mb-2"
-/>
+<div class="flex items-center gap-3">
+<img src="${song.cover}"
+class="w-14 h-14 rounded-full object-cover border border-white/30" />
+<div>
+<h1 class="text-xl font-bold">${song.title}</h1>
+<p class="text-gray-300 text-sm">${song.artist}</p>
+</div>
+</div>
 
-<h1 class="text-2xl font-bold">${song.title}</h1>
-
-<p class="text-gray-300">${song.artist}</p>
-
-<p class="mt-3 text-lg">${song.message}</p>
+<p class="mt-4 text-lg">${song.message}</p>
 
 <div class="flex items-center gap-4 mt-6">
 
-<button
-onclick="toggleLike(${song.id})"
-class="text-3xl"
->
-${song.liked ? "❤️" : "🤍"}
+<button onclick="togglePlay(${song.id})"
+id="playBtn-${song.id}">
+${playIcon()}
 </button>
 
-<button
-onclick="togglePlay(${song.id})"
-class="text-2xl"
->
-▶️
+<div class="w-40 h-1 bg-white/30 rounded overflow-hidden">
+<div id="progress-${song.id}"
+class="h-full bg-white w-0 transition-all"></div>
+</div>
+
+<button onclick="toggleLike(${song.id})">
+${song.liked ? heartFilled() : heartOutline()}
 </button>
 
 </div>
@@ -311,148 +299,142 @@ class="text-2xl"
 </div>
 
 <audio id="audio-${song.id}" src="${song.src}"></audio>
-
 `;
 
 feed.appendChild(div);
 
+let audio = div.querySelector("audio");
+
+audio.addEventListener("loadedmetadata", ()=>{
+  song.duration = audio.duration;
+  saveData();
 });
 
+let progress = div.querySelector("#progress-" + song.id);
+
+audio.addEventListener("timeupdate", ()=>{
+  if(audio.duration){
+    let percent = (audio.currentTime / audio.duration) * 100;
+    progress.style.width = percent + "%";
+  }
+});
+
+});
+
+observeSongs();
 }
 
-
-// ========================
+// =======================
 // LIKE
-// ========================
+// =======================
 
 function toggleLike(id){
-
 let song = songs.find(s=>s.id==id);
-
 song.liked = !song.liked;
-
-sortFeed();
-
+updateInterest(song);
 buildFeed();
+}
+
+// =======================
+// MEDIA SESSION
+// =======================
+
+function setMediaSession(song, audio){
+
+if ('mediaSession' in navigator){
+
+navigator.mediaSession.metadata =
+new MediaMetadata({
+  title: song.title,
+  artist: song.artist,
+  album: "Music Feed",
+  artwork: [
+    { src: song.cover, sizes: "512x512", type: "image/png" }
+  ]
+});
+
+navigator.mediaSession.setActionHandler('play', ()=> audio.play());
+navigator.mediaSession.setActionHandler('pause', ()=> audio.pause());
 
 }
 
+}
 
-// ========================
-// PLAY
-// ========================
-
-let currentAudio = null;
-let currentSong = null;
-let listenInterval = null;
+// =======================
+// PLAY + PROGRESS
+// =======================
 
 function togglePlay(id){
 
 let audio = document.getElementById("audio-"+id);
-
+let btn = document.getElementById("playBtn-"+id);
+let progress = document.getElementById("progress-"+id);
 let song = songs.find(s=>s.id==id);
-
-if(currentAudio && currentAudio != audio){
-
-currentAudio.pause();
-
-clearInterval(listenInterval);
-
-}
 
 if(audio.paused){
 
 audio.play();
-
+btn.innerHTML = pauseIcon();
 song.playCount++;
 
-currentAudio = audio;
+setMediaSession(song,audio);
 
-currentSong = song;
 
-listenInterval = setInterval(()=>{
-
-song.listenTime++;
-
-},1000);
 
 }
 else{
-
 audio.pause();
-
-clearInterval(listenInterval);
-
+btn.innerHTML = playIcon();
 }
 
 }
 
-
-// ========================
+// =======================
 // AUTO PLAY ON SCROLL
-// ========================
+// =======================
 
 let observer = new IntersectionObserver(entries=>{
-
 entries.forEach(entry=>{
 
 let audio = entry.target.querySelector("audio");
-
 let id = parseInt(audio.id.split("-")[1]);
-
 let song = songs.find(s=>s.id==id);
 
 if(entry.isIntersecting){
 
 audio.play();
-
 song.playCount++;
+setMediaSession(song, audio);
 
-currentAudio = audio;
-
-currentSong = song;
-
-listenInterval = setInterval(()=>{
-
+song._interval = setInterval(()=>{
 song.listenTime++;
-
 },1000);
 
 }
 else{
 
 audio.pause();
-
-clearInterval(listenInterval);
+clearInterval(song._interval);
+updateInterest(song);
 
 }
 
 });
+},{ threshold: 0.7 });
 
-},{
-threshold: 0.7
-});
+function observeSongs(){
+document.querySelectorAll(".song")
+.forEach(el=> observer.observe(el));
+}
 
-// ========================
+// =======================
 // INIT
-// ========================
+// =======================
 
 function init(){
-
+loadData();
 sortFeed();
-
 buildFeed();
-
-setTimeout(()=>{
-
-document.querySelectorAll(".song").forEach(el=>{
-
-observer.observe(el);
-
-});
-
-},100);
-
 }
 
 init();
@@ -460,6 +442,4 @@ init();
 </script>
 
 </body>
-
 </html>
-

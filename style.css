@@ -1,0 +1,17 @@
+@font-face {
+    font-family: bahman;
+    src: url("fonts/Bahman.ttf") format("truetype");
+}
+@font-face {
+    font-family: hasti;
+    src: url("fonts/Peyda-ExtraBold[@mimvid].ttf") format("truetype");
+}
+@font-face {
+    font-family: kalameh;
+    src: url("fonts/Kalameh-Medium[@mimvid].ttf") format("truetype");
+}
+@font-face {
+    font-family: peyda;
+    src: url("fonts/Peyda-Bold[@mimvid].ttf") format("truetype");
+}
+
